@@ -1,6 +1,9 @@
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
+from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from passlib.context import CryptContext
+
+
+pwd_context = CryptContext(schemes=["bcrypt"])
 
 
 class Base(DeclarativeBase):
@@ -8,13 +11,28 @@ class Base(DeclarativeBase):
 
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'User'
 
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    password = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
-    telegram_id = Column(String, unique=True, index=True)
-    is_active = Column(Boolean)
-    is_supervisor = Column(Boolean)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(nullable=False, unique=True)
+    __password: Mapped[str] = mapped_column("password", nullable=False)
+    email: Mapped[str] = mapped_column(nullable=False, unique=True)
+    telegram_id: Mapped[str] = mapped_column(nullable=False, unique=True)
+    is_active: Mapped[bool] = mapped_column(nullable=False)
+    is_supervisor: Mapped[bool] = mapped_column(nullable=False, default=False)
+
+    user_info = relationship('UserInfo', back_populates='User')
+    projects = relationship('ProjectUsers', back_populates='User')
+
+    @hybrid_property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def password(self, password):
+        self.__password = pwd_context.hash(password)
+
+    @hybrid_method
+    def verify_password(self, password):
+        return pwd_context.verify(password, self.__password)
 
