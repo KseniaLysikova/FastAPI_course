@@ -1,3 +1,4 @@
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from passlib.context import CryptContext
@@ -36,3 +37,16 @@ class User(Base):
     def verify_password(self, password):
         return pwd_context.verify(password, self.__password)
 
+
+class UserInfo(Base):
+    __tablename__ = 'UserInfo'
+
+    user_id: Mapped[str] = mapped_column(ForeignKey('User.id'), primary_key=True)
+    surname: Mapped[str] = mapped_column(nullable=False)
+    name: Mapped[str] = mapped_column(nullable=False)
+    patronymic: Mapped[str] = mapped_column(nullable=True)
+    phone: Mapped[str] = mapped_column(nullable=False, unique=True)
+    position: Mapped[str] = mapped_column(nullable=False)
+    telegram_token: Mapped[str] = mapped_column(nullable=False, unique=True)
+
+    user = relationship('User', back_populates='UserInfo')

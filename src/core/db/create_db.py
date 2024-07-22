@@ -4,7 +4,7 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from models.user import User, Base
 
 
-DATABASE_URL = "postgresql+asyncpg://postgres:123456@localhost:5432/test"
+DATABASE_URL = "postgresql+asyncpg://sqlite:123456@localhost:5432/test"
 engine = create_async_engine(DATABASE_URL, echo=True)
 session = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
