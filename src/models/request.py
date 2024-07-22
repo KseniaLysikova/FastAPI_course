@@ -1,7 +1,8 @@
-from sqlalchemy import ForeignKey, DateTime, TIMESTAMP, func
+from datetime import datetime
+from sqlalchemy import ForeignKey, TIMESTAMP, func
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import ENUM, JSONB
-from user import Base
+from models.user import Base
 
 RequestStatus = ENUM(
     'created', 'in_work', 'completed', 'closed',
@@ -24,9 +25,9 @@ class Request(Base):
     request_type: Mapped[RequestType] = mapped_column(RequestType, nullable=False)
     status: Mapped[RequestStatus] = mapped_column(RequestStatus, nullable=False)
     attendant_id: Mapped[int] = mapped_column(ForeignKey('User.id'), nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(TIMESTAMP(timezone=True), nullable=False,
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False,
                                                  server_default=func.current_timestamp())
-    finished_at: Mapped[DateTime] = mapped_column(TIMESTAMP(timezone=True), nullable=False,
+    finished_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), nullable=False,
                                                   server_default=func.current_timestamp())
 
     user = relationship('User', back_populates='Request')
