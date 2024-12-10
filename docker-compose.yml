@@ -1,0 +1,40 @@
+version: "3.6"
+services:
+  restapi:
+    image: criceta_backend
+    build: .
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    entrypoint: ["python3", "main.py"]
+    networks:
+      - criceta_net
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=criceta
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - criceta_net
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - '8080:8080'
+    networks:
+      - criceta_net
+networks:
+  criceta_net:
+    external: true
